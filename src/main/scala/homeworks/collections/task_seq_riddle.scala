@@ -2,6 +2,8 @@ package homeworks.collections
 
 import homeworks.HomeworksUtils.TaskSyntax
 
+import scala.annotation.tailrec
+
 object task_seq_riddle {
 
   /**
@@ -18,8 +20,24 @@ object task_seq_riddle {
    * 1. Реализуйте функцию генерирующую след последовательность из текущей
    * */
 
-  def nextLine(currentLine: List[Int]): List[Int] =
-    task"Реализуйте функцию генерирующую след последовательность из текущей"()
+  def nextLine(currentLine: List[Int]): List[Int] = {
+    @tailrec
+    def nextLineLoop(line: List[Int], acc: List[Int]): List[Int] = {
+      val elem = line.head
+      val index = line.indexWhere(x => elem != x) // находим индекс, где прерывается последовательность повтора числа
+
+      // разделяем на два списка - 1 - непрерывная последовательность, по ней считаем сколько чисел
+      // 2 - остальная часть, по которой продолжим расчет последовательности
+      val pairSeqAndOther = line.splitAt(index)
+      if (pairSeqAndOther._1 == Nil)
+        (elem :: pairSeqAndOther._2.length :: acc).reverse
+      else
+        nextLineLoop(pairSeqAndOther._2, elem :: pairSeqAndOther._1.length :: acc)
+    }
+
+    if (currentLine == Nil) List[Int](1)
+    else nextLineLoop(currentLine, Nil)
+  }
 
   /**
    * 2. Реализуйте ленивый список, который генерирует данную последовательность
@@ -29,6 +47,6 @@ object task_seq_riddle {
    *
    */
 
-  val funSeq: LazyList[List[Int]] =
-    task"Реализуйте ленивый список, который генерирует данную последовательность"()
+  val funSeq: LazyList[List[Int]] = nextLine(Nil) #:: nextLine(nextLine(Nil)) #:: funSeq.tail.map(x => nextLine(x))
+
 }
