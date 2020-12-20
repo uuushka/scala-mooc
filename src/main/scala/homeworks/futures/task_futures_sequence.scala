@@ -22,8 +22,8 @@ object task_futures_sequence {
     val futureValues = futures
       .foldRight(acc) { // распределяем вычисления фьючи в Either
         case (x, acc) => x.value match {
-          case Some(Failure(ex)) => Right(ex) :: acc
           case Some(Success(value)) => Left(value) :: acc
+          case Some(Failure(ex)) => Right(ex) :: acc
           case None => Right(new Exception("Future not completed")) :: acc
         }
       }
