@@ -1,7 +1,6 @@
 package homeworks.futures
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future}
 
 object task_futures_sequence {
   /**
@@ -18,22 +17,20 @@ object task_futures_sequence {
    * @return асинхронную задачу с кортежом из двух списков
    */
   def fullSequence[A](futures: List[Future[A]]): Future[(List[A], List[Throwable])] = {
+    implicit val ecGlobal: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-    val acc: List[Either[A, Throwable]] = Nil
-    val futureValues = futures
-      .foldRight(acc) { // распределяем вычисления фьючи в Either
-        case (x, acc) => x.value match {
-          case Some(Success(value)) => Left(value) :: acc
-          case Some(Failure(ex)) => Right(ex) :: acc
-          case None => Right(new Exception("Future not completed")) :: acc
-        }
-      }
-      .partitionMap { // делим по Left и Right на кортеж
-        case l@Left(_) => l
-        case r@Right(_) => r
-      }
+    val acc: (List[A], List[Throwable]) = (Nil, Nil)
 
-    Future.successful(futureValues)
+    // дабы не лишний раз не проходить partition сразу аккумулируем в кортеж
+    // с помощью map и recover вытаскиваем значение, т.к. они возвращают Future
+    // acc делаем Future, и над ним делаем flatMap, чтобы наполнять кортеж
+    futures
+      .foldRight(Future.successful(acc)) {
+        case (x, acc) => acc.flatMap(
+          res => x
+            .map { case value: A => (value :: res._1, res._2) }
+            .recover { case ex: Throwable => (res._1, ex :: res._2) })
+      }
   }
 
 }
