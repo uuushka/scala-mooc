@@ -1,6 +1,7 @@
 package homeworks.futures
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 object task_futures_sequence {
   /**
@@ -28,8 +29,10 @@ object task_futures_sequence {
       .foldRight(Future.successful(acc)) {
         case (x, acc) => acc.flatMap(
           res => x
-            .map { case value: A => (value :: res._1, res._2) }
-            .recover { case ex: Throwable => (res._1, ex :: res._2) })
+            .transformWith {
+              case Success(value) => Future.successful((value :: res._1, res._2))
+              case Failure(exception) => Future.successful((res._1, exception :: res._2))
+            })
       }
   }
 
