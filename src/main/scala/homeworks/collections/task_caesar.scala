@@ -4,7 +4,7 @@ import homeworks.HomeworksUtils.TaskSyntax
 
 object task_caesar {
 
-  private lazy val ALPHABET: List[Char] = ('A' to 'Z').toList
+  private lazy val Alphabet: List[Char] = ('A' to 'Z').toList
   /**
    * Алгоритм для обработки каждого символа шифра/де-шифра
    * Если выходим за рамки алфавита, то идем по кругу
@@ -16,13 +16,13 @@ object task_caesar {
    */
   private def caesarCipherAZ(c: Char, offset: Int, toRight: Boolean = true): Char = {
     val direction = if (toRight) 1 else -1
-    val alphabetCap = ALPHABET.length
-    val indexChar = ALPHABET.indexOf(c)
+    val alphabetCap = Alphabet.length
+    val indexChar = Alphabet.indexOf(c)
     val cipherCharIndex = indexChar + direction * (offset % alphabetCap)
     cipherCharIndex match {
-      case ind if ind < 0 => ALPHABET(ind+alphabetCap)
-      case ind if ind >= alphabetCap => ALPHABET(ind-alphabetCap)
-      case ind@_ => ALPHABET(ind)
+      case ind if ind < 0 => Alphabet(ind+alphabetCap)
+      case ind if ind >= alphabetCap => Alphabet(ind-alphabetCap)
+      case ind@_ => Alphabet(ind)
     }
   }
 

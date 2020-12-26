@@ -47,6 +47,6 @@ object task_seq_riddle {
    *
    */
 
-  val funSeq: LazyList[List[Int]] = nextLine(Nil) #:: nextLine(nextLine(Nil)) #:: funSeq.tail.map(x => nextLine(x))
+  val funSeq: LazyList[List[Int]] = List(1) #:: funSeq.map(nextLine)
 
 }
